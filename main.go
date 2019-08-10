@@ -1,22 +1,22 @@
 package main
 
 import (
-    "fmt"
+	"fmt"
+	"golang.org/x/sys/windows"
 	"syscall"
 	"time"
-    "unsafe"
-    "golang.org/x/sys/windows"
+	"unsafe"
 )
 
 var (
-	mod 					= windows.NewLazyDLL("user32.dll")
-	procGetWindowText   	= mod.NewProc("GetWindowTextW")
+	mod                     = windows.NewLazyDLL("user32.dll")
+	procGetWindowText       = mod.NewProc("GetWindowTextW")
 	procGetWindowTextLength = mod.NewProc("GetWindowTextLengthW")
 )
 
 type (
 	HANDLE uintptr
-	HWND HANDLE
+	HWND   HANDLE
 )
 
 func GetWindowTextLength(hwnd HWND) int {
@@ -39,14 +39,14 @@ func GetWindowText(hwnd HWND) string {
 }
 
 func getWindow(funcName string) uintptr {
-    proc := mod.NewProc(funcName)
-    hwnd, _, _ := proc.Call()
-    return hwnd
+	proc := mod.NewProc(funcName)
+	hwnd, _, _ := proc.Call()
+	return hwnd
 }
 
 func main() {
-  for {
-		if hwnd := getWindow("GetForegroundWindow") ; hwnd != 0 {
+	for {
+		if hwnd := getWindow("GetForegroundWindow"); hwnd != 0 {
 			text := GetWindowText(HWND(hwnd))
 			fmt.Println("window :", text, "# hwnd:", hwnd)
 		}
