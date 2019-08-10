@@ -3,15 +3,17 @@ package main
 import (
 	"fmt"
 	"golang.org/x/sys/windows"
+	ps "github.com/keybase/go-ps"
 	"syscall"
 	"time"
 	"unsafe"
 )
 
 var (
-	mod                     = windows.NewLazyDLL("user32.dll")
-	procGetWindowText       = mod.NewProc("GetWindowTextW")
-	procGetWindowTextLength = mod.NewProc("GetWindowTextLengthW")
+	mod                          = windows.NewLazyDLL("user32.dll")
+	procGetWindowText            = mod.NewProc("GetWindowTextW")
+	procGetWindowTextLength      = mod.NewProc("GetWindowTextLengthW")
+	procGetWindowThreadProcessId = mod.NewProc("GetWindowThreadProcessId")
 )
 
 type (
@@ -44,11 +46,24 @@ func getWindow(funcName string) uintptr {
 	return hwnd
 }
 
+func GetWindowProcess(hwnd HWND) int {
+	procId := 0;
+	procGetWindowThreadProcessId.Call(uintptr(hwnd), uintptr(unsafe.Pointer(&procId)))
+
+	return procId
+}
+
 func main() {
 	for {
 		if hwnd := getWindow("GetForegroundWindow"); hwnd != 0 {
 			text := GetWindowText(HWND(hwnd))
-			fmt.Println("window :", text, "# hwnd:", hwnd)
+			procId := GetWindowProcess(HWND(hwnd))
+			
+			yoProcess, _ := ps.FindProcess(procId)
+			processExecName := yoProcess.Executable()
+			processPath, _ := yoProcess.Path()
+
+			fmt.Println("window :", text, "# procId:", procId, "# Process? ", processExecName, "# Path? ", processPath)
 		}
 
 		time.Sleep(2 * time.Second)
