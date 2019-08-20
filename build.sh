@@ -3,4 +3,4 @@
 # https://github.com/smurfpandey/what-game
 
 export GOOS=windows
-go build
+go fmt && go build
