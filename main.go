@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"os"
-	"time"
 )
 
 func exitWithMessage(message string) {
@@ -13,19 +12,12 @@ func exitWithMessage(message string) {
 
 func main() {
 
-	gamesDB := LoadGamesDB()
-	foundGame := false
+	//
+	// foundGame := false
 
+	JustKeepLooking(func(gotTheGame Game) {
+		fmt.Println("Got this: ", gotTheGame)
+	})
 	for {
-
-		fmt.Println(foundGame)
-		time.Sleep(10 * time.Second)
-		if foundGame {
-			fmt.Println("We already have a game running. Sleeping for 10mins")
-			time.Sleep(10 * time.Second)
-			continue
-		}
-
-		_, foundGame = FindGame(gamesDB)
 	}
 }
