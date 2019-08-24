@@ -9,10 +9,11 @@ import (
 )
 
 type Game struct {
-	Name    string `toml:"name"`
-	Exec    string `toml:"exec_name"`
-	Website string `toml:"website_url"`
-	Store   string `toml:"store_url"`
+	Name      string `toml:"name"`
+	Exec      string `toml:"exec_name"`
+	Website   string `toml:"website_url"`
+	Store     string `toml:"store_url"`
+	ProcessId int
 }
 
 type GameList struct {
@@ -27,7 +28,7 @@ var (
 )
 
 const (
-	LOOKER_INTERVAL time.Duration = 10 * time.Second
+	GAME_LOOKER_INTERVAL time.Duration = 10 * time.Second
 )
 
 func LoadGamesDB() {
@@ -62,7 +63,22 @@ func FindGame() (Game, bool) {
 		yoProcess, _ := ps.FindProcess(procId)
 		processExecName := yoProcess.Executable()
 
-		return IsThisAGame(appName, processExecName)
+		// if processExecName is ApplicationFrameHost.exe, that means a UWP app is running
+		// we should find the real process details instead
+		if processExecName == UWP_HOST_APP {
+			procId = GetUWPAppProcess()
+			yoProcess, _ = ps.FindProcess(procId)
+			processExecName = yoProcess.Executable()
+		}
+
+		fmt.Println(yoProcess)
+
+		foundGame, milaKya := IsThisAGame(appName, processExecName)
+		if milaKya {
+			foundGame.ProcessId = procId
+		}
+
+		return foundGame, milaKya
 	}
 
 	return Game{}, false
@@ -77,7 +93,7 @@ func JustKeepLooking(callback CallbackWhenFound) {
 	LoadGamesDB()
 
 	// 2. Start ticker. And just keep looking
-	tickerForLooker = time.NewTicker(LOOKER_INTERVAL)
+	tickerForLooker = time.NewTicker(GAME_LOOKER_INTERVAL)
 	fmt.Println("Looker started.")
 	go func() {
 		for t := range tickerForLooker.C {
@@ -90,7 +106,6 @@ func JustKeepLooking(callback CallbackWhenFound) {
 			} else {
 				fmt.Println("still looking", t)
 			}
-
 		}
 	}()
 }

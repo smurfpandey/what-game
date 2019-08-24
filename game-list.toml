@@ -5,7 +5,7 @@ name = "Neeraj Verma"
 
 [[games]]
 name = "Asphalt 9: Legends"
-exec_name = "ApplicationFrameHost.exe"
+exec_name = "Asphalt9_w10_x86_rtl.exe"
 website_url = "https://asphaltlegends.com/"
 store_url = "https://www.microsoft.com/store/productId/9NZQPT0MWTD0"
 

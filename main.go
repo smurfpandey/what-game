@@ -14,10 +14,12 @@ func main() {
 
 	//
 	// foundGame := false
-
-	JustKeepLooking(func(gotTheGame Game) {
-		fmt.Println("Got this: ", gotTheGame)
-	})
+	JustKeepWatching(18864)
+	// JustKeepLooking(func(gotTheGame Game) {
+	// 	fmt.Println("So you are playing", gotTheGame.Name)
+	// 	fmt.Println("I am tracking you now", gotTheGame.ProcessId)
+	// 	JustKeepWatching(gotTheGame.ProcessId)
+	// })
 	for {
 	}
 }
