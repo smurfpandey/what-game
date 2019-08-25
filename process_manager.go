@@ -1,8 +1,8 @@
 package main
 
 import (
-	"fmt"
 	ps "github.com/keybase/go-ps"
+	"log"
 	"time"
 )
 
@@ -45,19 +45,17 @@ func JustKeepWatching(processId int, callback CallbackOnStatusChange) {
 
 	// 1. Start ticker. And just keep watching the process
 	tickerForWatcher = time.NewTicker(PROCESS_WATCHER_INTERVAL)
-	fmt.Println("Watcher started.")
 	go func() {
 		for _ = range tickerForWatcher.C {
 			procStatus, err := GetProcessStatus(processId)
 
 			if err != nil {
-				fmt.Println("Error: ", err)
+				log.Fatal(err)
 			} else {
 				switch procStatus {
 				case PROCESS_STATUS_ACTIVE:
-					fmt.Println("Still active")
+					logger.Info("Still playing that game")
 				case PROCESS_STATUS_EXITED:
-					fmt.Println("Exited")
 					tickerForWatcher.Stop()
 					callback(procStatus)
 

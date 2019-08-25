@@ -1,10 +1,11 @@
 package main
 
 import (
-	"fmt"
 	ps "github.com/keybase/go-ps"
 	"github.com/pelletier/go-toml"
 	"io/ioutil"
+	"log"
+	"strconv"
 	"time"
 )
 
@@ -34,15 +35,15 @@ const (
 func LoadGamesDB() {
 	bytData, err := ioutil.ReadFile("game-list.toml")
 	if err != nil {
-		exitWithMessage(err.Error())
+		log.Fatal(err)
 	}
 
 	err = toml.Unmarshal(bytData, &gamesDB)
 	if err != nil {
-		exitWithMessage(err.Error())
+		log.Fatal(err)
 	}
 
-	fmt.Printf("Loaded %d games.\n", len(gamesDB.Games))
+	logger.Info("Found " + strconv.Itoa(len(gamesDB.Games)) + " games in list")
 }
 
 func IsThisAGame(appName string, execName string) (Game, bool) {
@@ -71,8 +72,6 @@ func FindGame() (Game, bool) {
 			processExecName = yoProcess.Executable()
 		}
 
-		fmt.Println(yoProcess)
-
 		foundGame, milaKya := IsThisAGame(appName, processExecName)
 		if milaKya {
 			foundGame.ProcessId = procId
@@ -94,17 +93,13 @@ func JustKeepLooking(callback CallbackWhenFound) {
 
 	// 2. Start ticker. And just keep looking
 	tickerForLooker = time.NewTicker(GAME_LOOKER_INTERVAL)
-	fmt.Println("Looker started.")
 	go func() {
-		for t := range tickerForLooker.C {
+		for _ = range tickerForLooker.C {
 			foundGame, gotIt := FindGame()
 
 			if gotIt {
-				fmt.Println("Got it", t)
 				callback(foundGame)
 				tickerForLooker.Stop()
-			} else {
-				fmt.Println("still looking", t)
 			}
 		}
 	}()
