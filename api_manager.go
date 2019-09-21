@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"github.com/imroc/req"
 )
 
@@ -12,32 +13,32 @@ func NotifyGameStarted(startedGame Game) {
 	rawResp, err := req.Post(API_URL, req.BodyJSON(&startedGame))
 
 	if err != nil {
-		logger.Error("Error making POST request")
+		fmt.Println("Error making POST request")
 		return
 	}
 	resp := rawResp.Response()
 
 	if resp.StatusCode != 200 {
-		logger.Error("API responded with not OK code", resp.StatusCode)
+		fmt.Println("API responded with not OK code", resp.StatusCode)
 		return
 	}
 
-	logger.Info("Notified via API: Started")
+	fmt.Println("Notified via API: Started")
 }
 
 func NotifyGameExited() {
 	rawResp, err := req.Delete(API_URL)
 
 	if err != nil {
-		logger.Error("Error making DELETE request")
+		fmt.Println("Error making DELETE request")
 		return
 	}
 	resp := rawResp.Response()
 
 	if resp.StatusCode != 200 {
-		logger.Error("API responded with not OK code", resp.StatusCode)
+		fmt.Println("API responded with not OK code", resp.StatusCode)
 		return
 	}
 
-	logger.Info("Notified via API: Exited")
+	fmt.Println("Notified via API: Exited")
 }

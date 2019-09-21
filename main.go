@@ -1,10 +1,11 @@
 package main
 
 import (
-	"flag"
+	"fmt"
+	"github.com/gonutz/w32"
 	"log"
-
-	"github.com/kardianos/service"
+	"os"
+	"os/signal"
 )
 
 // Program structures.
@@ -13,20 +14,6 @@ type program struct {
 	exit chan struct{}
 }
 
-var logger service.Logger
-
-func (p *program) Start(s service.Service) error {
-	if service.Interactive() {
-		logger.Info("Running in terminal.")
-	} else {
-		logger.Info("Running under service manager.")
-	}
-	p.exit = make(chan struct{})
-
-	// Start should not block. Do the actual work async.
-	go p.run()
-	return nil
-}
 func (p *program) run() error {
 	startLogic()
 	for {
@@ -44,23 +31,17 @@ func (p *program) run() error {
 		}
 	}
 }
-func (p *program) Stop(s service.Service) error {
-	// Any work in Stop should be quick, usually a few seconds at most.
-	logger.Info("I'm Stopping!")
-	close(p.exit)
-	return nil
-}
 
 func startLogic() {
 	JustKeepLooking(func(gotTheGame Game) {
-		logger.Info("So you are playing ", gotTheGame.Name)
-		logger.Info("I am tracking you now ", gotTheGame.ProcessId)
+		fmt.Println("So you are playing ", gotTheGame.Name)
+		fmt.Println("I am tracking you now ", gotTheGame.ProcessId)
 
 		// call POST endpoint
 		NotifyGameStarted(gotTheGame)
 
 		JustKeepWatching(gotTheGame.ProcessId, func(statusChange string) {
-			logger.Info(statusChange, " now what? Let's start again?")
+			fmt.Println(statusChange, " now what? Let's start again?")
 
 			// call DELETE endpoint
 			NotifyGameExited()
@@ -70,36 +51,18 @@ func startLogic() {
 	})
 }
 
-// Service setup.
-//   Define service config.
-//   Create the service.
-//   Setup the logger.
-//   Handle service controls (optional).
-//   Run the service.
 func main() {
-	svcFlag := flag.String("service", "", "Control the system service.")
-	flag.Parse()
-
-	options := make(service.KeyValue)
-	options["Restart"] = "on-success"
-	options["SuccessExitStatus"] = "1 2 8 SIGKILL"
-	svcConfig := &service.Config{
-		Name:        "WhatGameYouPlaying",
-		DisplayName: "What Game",
-		Description: "This service tracks which I am playing",
-		Option:      options,
+	console := w32.GetConsoleWindow()
+	if console != 0 {
+		_, consoleProcID := w32.GetWindowThreadProcessId(console)
+		if w32.GetCurrentProcessId() == consoleProcID {
+			w32.ShowWindowAsync(console, w32.SW_HIDE)
+		}
 	}
 
 	prg := &program{}
-	s, err := service.New(prg, svcConfig)
-	if err != nil {
-		log.Fatal(err)
-	}
+
 	errs := make(chan error, 5)
-	logger, err = s.Logger(errs)
-	if err != nil {
-		log.Fatal(err)
-	}
 
 	go func() {
 		for {
@@ -110,16 +73,14 @@ func main() {
 		}
 	}()
 
-	if len(*svcFlag) != 0 {
-		err := service.Control(s, *svcFlag)
-		if err != nil {
-			log.Printf("Valid actions: %q\n", service.ControlAction)
-			log.Fatal(err)
-		}
-		return
-	}
-	err = s.Run()
-	if err != nil {
-		logger.Error(err)
-	}
+	prg.exit = make(chan struct{})
+
+	// Start should not block. Do the actual work async.
+	go prg.run()
+
+	sigChan := make(chan os.Signal)
+
+	signal.Notify(sigChan, os.Interrupt)
+
+	<-sigChan
 }

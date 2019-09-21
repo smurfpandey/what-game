@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	ps "github.com/keybase/go-ps"
 	"github.com/pelletier/go-toml"
 	"io/ioutil"
@@ -33,7 +34,7 @@ const (
 )
 
 func LoadGamesDB() {
-	bytData, err := ioutil.ReadFile("game-list.toml")
+	bytData, err := ioutil.ReadFile("F:\\Pro\\Go\\src\\github.com\\smurfpandey\\what-game\\game-list.toml")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -43,7 +44,7 @@ func LoadGamesDB() {
 		log.Fatal(err)
 	}
 
-	logger.Info("Found " + strconv.Itoa(len(gamesDB.Games)) + " games in list")
+	fmt.Println("Found " + strconv.Itoa(len(gamesDB.Games)) + " games in list")
 }
 
 func IsThisAGame(appName string, execName string) (Game, bool) {
