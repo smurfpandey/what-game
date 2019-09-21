@@ -10,10 +10,10 @@ import (
 )
 
 type Game struct {
-	Name      string `toml:"name"`
-	Exec      string `toml:"exec_name"`
-	Website   string `toml:"website_url"`
-	Store     string `toml:"store_url"`
+	Name      string `toml:"name" json:"name"`
+	Exec      string `toml:"exec_name" json:"exec_name"`
+	Website   string `toml:"website_url" json:"website_url"`
+	Store     string `toml:"store_url" json:"store_url"`
 	ProcessId int
 }
 

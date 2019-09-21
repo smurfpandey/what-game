@@ -55,8 +55,16 @@ func startLogic() {
 	JustKeepLooking(func(gotTheGame Game) {
 		logger.Info("So you are playing ", gotTheGame.Name)
 		logger.Info("I am tracking you now ", gotTheGame.ProcessId)
+
+		// call POST endpoint
+		NotifyGameStarted(gotTheGame)
+
 		JustKeepWatching(gotTheGame.ProcessId, func(statusChange string) {
 			logger.Info(statusChange, " now what? Let's start again?")
+
+			// call DELETE endpoint
+			NotifyGameExited()
+
 			startLogic()
 		})
 	})
