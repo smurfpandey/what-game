@@ -32,3 +32,27 @@ name = "Battlefield 4"
 exec_name = "bf4.exe"
 website_url = "https://www.ea.com/games/battlefield/battlefield-4"
 store_url = "https://www.origin.com/ind/en-us/store/battlefield/battlefield-4"
+
+[[games]]
+name = "Need For Speed Most Wanted"
+exec_name = "NFS13.exe"
+website_url = ""
+store_url = ""
+
+[[games]]
+name = "Need for Speed The Run"
+exec_name = "Need For Speed The Run.exe"
+website_url = ""
+store_url = ""
+
+[[games]]
+name = "Grand Theft Auto V"
+exec_name = "GTA5.exe"
+website_url = ""
+store_url = ""
+
+[[games]]
+name = "Call of Duty Modern Warfare"
+exec_name = "ModernWarfare.exe"
+website_url = ""
+store_url = ""
