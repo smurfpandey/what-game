@@ -56,3 +56,9 @@ name = "Call of Duty Modern Warfare"
 exec_name = "ModernWarfare.exe"
 website_url = ""
 store_url = ""
+
+[[games]]
+name = "Batman Arkham City"
+exec_name = "BatmanAC.exe"
+website_url = ""
+store_url = ""
